@@ -1,5 +1,5 @@
 ###
-POST http://localhost:8081/greet?name=ilya5
+POST http://localhost:8081/greet?name=ilya6
 
 ###
 GET http://localhost:8081/actuator/health

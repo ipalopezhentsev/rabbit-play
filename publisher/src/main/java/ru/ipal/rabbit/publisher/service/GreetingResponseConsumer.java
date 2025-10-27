@@ -27,6 +27,7 @@ import ru.ipal.rabbit.publisher.model.GreetingResponse;
 @Slf4j
 public class GreetingResponseConsumer {
     private final String queueName;
+    private final boolean isDurable;
     private final ConnectionFactory connFactory;
     @Autowired
     private ObjectMapper objectMapper;
@@ -34,8 +35,10 @@ public class GreetingResponseConsumer {
 
     public GreetingResponseConsumer(
             @Value("${RABBIT_MQ_SERVER:}") String rabbitHost,
-            @Value("${HELLO_RESP_QUEUE_NAME:}") String queueName) {
+            @Value("${HELLO_RESP_QUEUE_NAME:}") String queueName,
+            @Value("${IS_TOPIC_DURABLE:false}") boolean isDurable) {
         this.queueName = queueName;
+        this.isDurable = isDurable;
         connFactory = new ConnectionFactory();
         connFactory.setHost(rabbitHost);
     }
@@ -48,7 +51,8 @@ public class GreetingResponseConsumer {
     public void consume() throws IOException, TimeoutException {
         Connection connection = connFactory.newConnection();
         Channel channel = connection.createChannel();
-        channel.queueDeclare(queueName, false, false, false, null);
+        channel.queueDeclare(queueName, isDurable, false, false, null);
+        channel.basicQos(1);
         DeliverCallback deliverCallback = new DeliverCallback() {
             @Override
             public void handle(String consumerTag, Delivery message) throws IOException {
@@ -61,7 +65,7 @@ public class GreetingResponseConsumer {
                     } else {
                         log.warn("Skipping resp {} because no listener", resp.correlationId());
                     }
-                    // channel.basicAck(deliveryTag, false);
+                    channel.basicAck(message.getEnvelope().getDeliveryTag(), false);
                 } catch (IOException e) {
                     log.error("Error while getting response", e);
                     // channel.basicNack(0, false, false);
@@ -69,7 +73,7 @@ public class GreetingResponseConsumer {
                 }
             }
         };
-        channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
+        channel.basicConsume(queueName, false, deliverCallback, consumerTag -> {
         });
 
     }
