@@ -1,0 +1,49 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "verify",
+            "type": "shell",
+            "command": "mvn -B verify",
+            "group": "build"
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "mvn -B test",
+            "group": "test"
+        },
+        {
+            "label": "docker start infra",
+            "type": "shell",
+            "command": "docker compose -f compose-infra.yaml up -d",
+            "group": "test"
+        },
+        {
+            "label": "docker restart my svcs",
+            "type": "shell",
+            "command": "docker compose up -d --force-recreate publisher consumer",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "type": "shell",
+            "label": "ab stress test",
+            "command": "ab -n 100000 -c 1000 -m POST -k 'http://localhost:8081/greet?name=ilya'",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                //"isDefault": true
+            },
+        }
+    ]
+}

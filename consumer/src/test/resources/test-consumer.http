@@ -1,0 +1,8 @@
+GET http://localhost:8082/greet?name=ilya&delayMillis=3000
+
+###
+GET http://localhost:8082/actuator/health
+
+###
+GET http://localhost:8082/actuator/metrics
+

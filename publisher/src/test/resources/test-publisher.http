@@ -1,0 +1,15 @@
+###
+POST http://localhost:8081/greet?name=ilya5
+
+###
+GET http://localhost:8081/actuator/health
+
+###
+GET http://localhost:8081/actuator/metrics
+
+
+###query collector running in docker for data which prometheus scrapes
+GET http://localhost:8889/metrics
+
+###query prometheus(!) running in docker for exemplars gathered from collector
+GET http://localhost:9090/api/v1/query_exemplars?query=http_client_request_duration_seconds_bucket

@@ -1,0 +1,43 @@
+include:
+  - compose-infra.yaml
+
+services:
+  publisher:
+    image: ru.ipal.rabbit-publisher:latest
+    mem_limit: 4g
+    ports:
+      - "8081:8081"
+    # restart: unless-stopped
+    environment:
+      RABBIT_MQ_SERVER: ${RABBIT_MQ_SERVER}
+      HELLO_RQ_QUEUE_NAME: ${HELLO_RQ_QUEUE_NAME}
+      HELLO_RESP_QUEUE_NAME: ${HELLO_RESP_QUEUE_NAME}
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+PrintFlagsFinal
+        -Xlog:gc
+        -XX:MaxGCPauseMillis=10000
+        -XX:GCTimeRatio=49
+        -XX:+UseG1GC
+        -XX:+UseCompactObjectHeaders
+        -XX:MaxRAMPercentage=75
+
+  consumer:
+    image: ru.ipal.rabbit-consumer:latest
+    mem_limit: 4g
+    scale: 3
+    ports:
+      - "8082"
+    # restart: unless-stopped
+    environment:
+      RABBIT_MQ_SERVER: ${RABBIT_MQ_SERVER}
+      HELLO_RQ_QUEUE_NAME: ${HELLO_RQ_QUEUE_NAME}
+      HELLO_RESP_QUEUE_NAME: ${HELLO_RESP_QUEUE_NAME}
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+PrintFlagsFinal
+        -Xlog:gc
+        -XX:MaxGCPauseMillis=10000
+        -XX:GCTimeRatio=49
+        -XX:+UseG1GC
+        -XX:+UseCompactObjectHeaders
+        -XX:MaxRAMPercentage=75
+  

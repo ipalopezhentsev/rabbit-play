@@ -1,0 +1,67 @@
+services:
+  rabbitmq:
+    image: "rabbitmq:4-management"
+    hostname: rabbitmq #for stable cluster name
+    # mem_limit: 4g
+    ports:
+      - "5672:5672"
+      - "8080:15672" #web-ui (guest/guest)
+      - "15692:15692" #/metrics - prometheus metrics
+
+#   collector:
+#     image: otel/opentelemetry-collector-contrib:0.132.2
+#     volumes:
+#       - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+#     ports:
+#       # - 1888:1888 # pprof extension
+#       - 8888:8888 # Prometheus metrics exposed by the Collector
+#       - 8889:8889 # Prometheus exporter metrics  (http://localhost:8889/metrics)
+#       # - 13133:13133 # health_check extension
+#       - 4317:4317 # OTLP gRPC receiver
+#       - 4318:4318 # OTLP http receiver
+#       - 55679:55679 # zpages extension
+#     restart: unless-stopped
+
+#   jaeger:
+#     image: cr.jaegertracing.io/jaegertracing/jaeger:2.9.0
+#     ports:
+#       - "16686:16686" #UI
+#       # - "4317:4317" #OTLP gRPC
+#       # - "4318:4318" #OTLP http
+#     restart: unless-stopped
+
+#   prometheus:
+#     image: prom/prometheus:v3.5.0
+#     ports:
+#       - "9090:9090"
+#     command:
+#       - "--config.file=/etc/prometheus/prometheus.yml"
+#       - "--web.enable-remote-write-receiver"
+#       - "--enable-feature=exemplar-storage"
+#     volumes:
+#       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+#     restart: unless-stopped
+
+#   grafana:
+#     image: grafana/grafana
+#     ports:
+#       - 3000:3000 #admin/admin in web ui
+#     restart: unless-stopped
+#     # environment:
+#       # - GF_SECURITY_ADMIN_USER=admin
+#       # - GF_SECURITY_ADMIN_PASSWORD=grafana
+#     volumes:
+#       - ./datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+#       - grafana-storage:/var/lib/grafana
+
+#   loki:
+#     image: grafana/loki:3.4.2
+#     ports:
+#       - "3100:3100"
+#     volumes:
+#       - ./loki-config.yaml:/etc/loki/local-config.yaml
+#     command: -config.file=/etc/loki/local-config.yaml
+
+
+# volumes:
+#   grafana-storage: {}
