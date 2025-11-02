@@ -19,6 +19,7 @@
 	<modules>
 		<module>publisher</module>
 		<module>consumer</module>
+		<module>rabbit</module>
 	</modules>
 
 	<properties>

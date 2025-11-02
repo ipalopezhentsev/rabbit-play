@@ -2,6 +2,22 @@
 POST http://localhost:8081/greet?name=ilya6
 
 ###
+POST http://localhost:8081/logFanout?msg=hello&severity=INFO
+
+###won't log because server binds just to severe
+POST http://localhost:8081/logRouting?msg=hello&severity=INFO
+###will log
+POST http://localhost:8081/logRouting?msg=hello&severity=severe
+
+###will log because everything from kernel
+POST http://localhost:8081/logTopic?msg=hello-kernel&severity=info&component=kernel
+###won't log because logs only severe from io
+POST http://localhost:8081/logRouting?msg=hello-io&severity=info&component=io
+###will log
+POST http://localhost:8081/logRouting?msg=hello-io-SEVERE&severity=severe&component=io
+
+
+###
 GET http://localhost:8081/actuator/health
 
 ###

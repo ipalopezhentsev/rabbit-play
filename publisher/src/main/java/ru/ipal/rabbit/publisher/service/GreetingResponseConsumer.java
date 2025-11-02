@@ -9,7 +9,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,27 +19,29 @@ import com.rabbitmq.client.DeliverCallback;
 import com.rabbitmq.client.Delivery;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import ru.ipal.rabbit.RabbitMqProperties;
 import ru.ipal.rabbit.publisher.model.GreetingResponse;
 
 @Service
 @Slf4j
 public class GreetingResponseConsumer {
-    private final String queueName;
-    private final boolean isDurable;
+    private final RabbitMqProperties props;
     private final ConnectionFactory connFactory;
+    private final Connection connection;
+    private final Channel channel;
     @Autowired
     private ObjectMapper objectMapper;
     private Map<UUID, Consumer<GreetingResponse>> listeners = new ConcurrentHashMap<>();
 
     public GreetingResponseConsumer(
-            @Value("${RABBIT_MQ_SERVER:}") String rabbitHost,
-            @Value("${HELLO_RESP_QUEUE_NAME:}") String queueName,
-            @Value("${IS_TOPIC_DURABLE:false}") boolean isDurable) {
-        this.queueName = queueName;
-        this.isDurable = isDurable;
+            RabbitMqProperties props) throws IOException, TimeoutException {
+        this.props = props;
         connFactory = new ConnectionFactory();
-        connFactory.setHost(rabbitHost);
+        connFactory.setHost(props.server());
+        connection = connFactory.newConnection();
+        channel = connection.createChannel();
     }
 
     public void registerListener(UUID correlationId, Consumer<GreetingResponse> consumer) {
@@ -49,9 +50,7 @@ public class GreetingResponseConsumer {
 
     @PostConstruct
     public void consume() throws IOException, TimeoutException {
-        Connection connection = connFactory.newConnection();
-        Channel channel = connection.createChannel();
-        channel.queueDeclare(queueName, isDurable, false, false, null);
+        channel.queueDeclare(props.helloRespQueue(), props.isDurable(), false, false, null);
         channel.basicQos(1);
         DeliverCallback deliverCallback = new DeliverCallback() {
             @Override
@@ -73,8 +72,15 @@ public class GreetingResponseConsumer {
                 }
             }
         };
-        channel.basicConsume(queueName, false, deliverCallback, consumerTag -> {
+        //this call exits immediately - that's why we cannot use try-with-resources in this method
+        //on channel/connection
+        channel.basicConsume(props.helloRespQueue(), false, deliverCallback, consumerTag -> {
         });
+    }
 
+    @PreDestroy
+    public void destroy() throws IOException, TimeoutException {
+        channel.close();
+        connection.close();
     }
 }
