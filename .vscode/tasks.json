@@ -38,7 +38,17 @@
         {
             "type": "shell",
             "label": "ab stress test",
-            "command": "ab -n 100000 -c 1000 -m POST -k 'http://localhost:8081/greet?name=ilya'",
+            "command": "ab -n 10000 -c 1000 -m POST -k 'http://localhost:8081/greet?name=ilya'",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                //"isDefault": true
+            },
+        },
+        {
+            "type": "shell",
+            "label": "ab stress test rpc",
+            "command": "ab -n 10000 -c 1000 -m POST -k 'http://localhost:8081/greetRpc?name=ilya'",
             "problemMatcher": [],
             "group": {
                 "kind": "test",

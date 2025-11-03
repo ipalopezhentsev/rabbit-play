@@ -2,6 +2,9 @@
 POST http://localhost:8081/greet?name=ilya6
 
 ###
+POST http://localhost:8081/greetRpc?name=ilyaRpc
+
+###
 POST http://localhost:8081/logFanout?msg=hello&severity=INFO
 
 ###won't log because server binds just to severe

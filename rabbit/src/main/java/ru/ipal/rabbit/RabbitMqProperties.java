@@ -27,7 +27,9 @@ public record RabbitMqProperties(
     String logRqTopicExchange,
     //comma-separated patterns
     @NotBlank
-    String logRqTopicConsumerBindingKeys
+    String logRqTopicConsumerBindingKeys,
+    @NotBlank
+    String helloRqRpcQueue
     ) {
     
 }
