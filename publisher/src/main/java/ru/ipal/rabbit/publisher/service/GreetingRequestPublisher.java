@@ -5,11 +5,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.MessageProperties;
@@ -25,7 +23,6 @@ public class GreetingRequestPublisher {
     private final RabbitMqProperties props;
     private final ConnectionFactory connFactory;
     private final Connection conn;
-    private final Channel channel;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -36,8 +33,9 @@ public class GreetingRequestPublisher {
         connFactory.setHost(props.server());
 
         this.conn = connFactory.newConnection();
-        this.channel = conn.createChannel();
-        channel.queueDeclare(props.helloRqQueue(), props.isDurable(), false, false, null);
+        try (var channel = conn.createChannel()) {
+            channel.queueDeclare(props.helloRqQueue(), props.isDurable(), false, false, null);
+        }
     }
 
     public void publishGreet(GreetingRequest rq) throws IOException, TimeoutException {
@@ -50,7 +48,6 @@ public class GreetingRequestPublisher {
 
     @PreDestroy
     public void destroy() throws IOException, TimeoutException {
-        channel.close();
         conn.close();
     }
 }

@@ -57,20 +57,25 @@ public class GreetingRpcRequestPublisher {
     }
 
     public CompletableFuture<String> publishGreet(GreetingRpcRequest rq)
-            throws IOException, TimeoutException {
+            throws IOException, TimeoutException, InterruptedException {
         var corrId = UUID.randomUUID();
         var res = new CompletableFuture<String>();
         // it's important to register before publishing!
         registerListener(corrId, resp -> res.complete(resp.greeting()));
 
         final var rqSer = objectMapper.writeValueAsString(rq);
+        //we create channel because I think it's not thread safe.
+        //also, creating it via thread local would behave badly with spring virtual threads enabled...
         try (var channel = conn.createChannel()) {
+            //enable publisher confirms (i.e. that broker took the msg)
+            channel.confirmSelect();
             var msgProps = new BasicProperties.Builder()
                     .deliveryMode(props.isDurable() ? 2 : 1)
                     .replyTo(replyQueue)
                     .correlationId(corrId.toString())
                     .build();
             channel.basicPublish("", props.helloRqRpcQueue(), msgProps, rqSer.getBytes(StandardCharsets.UTF_8));
+            channel.waitForConfirmsOrDie(5_000);
         }
         return res;
     }

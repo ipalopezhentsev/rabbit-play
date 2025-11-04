@@ -53,7 +53,7 @@ public class GreetingController {
     }
 
     @PostMapping("/greetRpc")
-    public CompletableFuture<String> greetRpc(@RequestParam String name) throws IOException, TimeoutException {
+    public CompletableFuture<String> greetRpc(@RequestParam String name) throws IOException, TimeoutException, InterruptedException {
         var rqShort = new GreetingRpcRequest(name, 0);
         var rqLong = new GreetingRpcRequest(name, 10);
         var fut1 = publishRpcSvc.publishGreet(rqShort);
