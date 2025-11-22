@@ -54,6 +54,15 @@
                 "kind": "test",
                 //"isDefault": true
             },
+        },
+        {
+            "type": "shell",
+            "label": "k6 stress test rpc",
+            "command": "docker run --rm -i --network=host grafana/k6 run - < test.js",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+            },
         }
     ]
 }

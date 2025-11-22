@@ -1,2 +1,0 @@
-### call main method
-GET http://localhost:8082/greet?name=ilya&delayMillis=3000

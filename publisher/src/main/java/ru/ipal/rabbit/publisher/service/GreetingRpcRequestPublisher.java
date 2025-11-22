@@ -75,7 +75,8 @@ public class GreetingRpcRequestPublisher {
                     .correlationId(corrId.toString())
                     .build();
             channel.basicPublish("", props.helloRqRpcQueue(), msgProps, rqSer.getBytes(StandardCharsets.UTF_8));
-            channel.waitForConfirmsOrDie(5_000);
+            //Note: I know it's slow, want to see how much
+            //channel.waitForConfirmsOrDie(5_000);
         }
         return res;
     }
